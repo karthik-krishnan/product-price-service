@@ -4,6 +4,7 @@ import `in`.karthiks.demo.productpriceservice.client.ThirdPartyPriceProvider
 import `in`.karthiks.demo.productpriceservice.model.Product
 import `in`.karthiks.demo.productpriceservice.model.VendorPrice
 import com.google.gson.JsonObject
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import java.math.BigDecimal
@@ -34,7 +35,10 @@ class PriceService(private val thirdPartyPriceProvider: ThirdPartyPriceProvider)
         }
         return Product(upc, (item?.get("title")?.asString ?: ""), prices)
         } catch(ex: HttpClientErrorException) {
-            throw ProductNotFoundException()
+            if (ex.statusCode == HttpStatus.BAD_REQUEST)
+                throw ProductNotFoundException()
+            else
+                throw ex
         }
     }
 
