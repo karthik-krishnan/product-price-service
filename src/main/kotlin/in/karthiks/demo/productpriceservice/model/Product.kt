@@ -1,4 +1,4 @@
-package `in`.karthiks.demo.productpriceservice.controller.model
+package `in`.karthiks.demo.productpriceservice.model
 
 import java.math.BigDecimal
 

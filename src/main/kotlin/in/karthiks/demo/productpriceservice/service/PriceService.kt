@@ -1,8 +1,8 @@
 package `in`.karthiks.demo.productpriceservice.service
 
 import `in`.karthiks.demo.productpriceservice.client.ThirdPartyPriceProvider
-import `in`.karthiks.demo.productpriceservice.controller.model.Product
-import `in`.karthiks.demo.productpriceservice.controller.model.VendorPrice
+import `in`.karthiks.demo.productpriceservice.model.Product
+import `in`.karthiks.demo.productpriceservice.model.VendorPrice
 import com.google.gson.JsonObject
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
