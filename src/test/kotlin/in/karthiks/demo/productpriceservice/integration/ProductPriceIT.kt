@@ -69,7 +69,7 @@ class ProductPriceIT {
 
         mockMvc.get("/products/12345/prices") {
         }.andExpect {
-            status {`is`(404)}
+            status {`is`(400)}
         }
     }
 }

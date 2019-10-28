@@ -16,7 +16,7 @@ class ProductPriceController(private val priceService: PriceService) {
 
     @ExceptionHandler(value = [PriceService.ProductNotFoundException::class])
     fun handleException(response: HttpServletResponse) {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid UPC!")
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid UPC!")
     }
 
 }
