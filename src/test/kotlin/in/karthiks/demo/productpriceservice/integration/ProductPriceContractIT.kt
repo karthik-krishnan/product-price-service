@@ -1,41 +1,41 @@
 package `in`.karthiks.demo.productpriceservice.integration
 
 import `in`.karthiks.demo.productpriceservice.ProductPriceServiceApplication
+import au.com.dius.pact.provider.PactVerifyProvider
+import au.com.dius.pact.provider.junit.Provider
+import au.com.dius.pact.provider.junit.State
+import au.com.dius.pact.provider.junit.loader.PactBroker
+import au.com.dius.pact.provider.junit5.HttpTestTarget
+import au.com.dius.pact.provider.junit5.PactVerificationContext
+import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvider
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestTemplate
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import org.springframework.web.context.WebApplicationContext
 import java.io.BufferedReader
 
 @Tag("integration")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [ProductPriceServiceApplication::class])
 @ActiveProfiles("test")
-class ProductPriceIT {
-
+@Provider("ProductPriceService")
+@PactBroker(host = "localhost", scheme = "http")
+class ProductPriceContractIT {
+    @LocalServerPort
+    private var port = 0
     private lateinit var wireMockServer: WireMockServer
-    @Autowired
-    lateinit var context: WebApplicationContext
-    lateinit var mockMvc: MockMvc
 
     @BeforeEach
-    internal fun setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(this.context)
-                .build()
+    internal fun setupTestTarget(context: PactVerificationContext) {
+        context.target = HttpTestTarget("localhost", port, "/")
         wireMockServer = WireMockServer(WireMockConfiguration.wireMockConfig().port(8088))
         wireMockServer.start()
     }
@@ -45,31 +45,19 @@ class ProductPriceIT {
         wireMockServer.stop()
     }
 
-    @Test
-    fun getPricesWithValidUPC() {
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider::class)
+    fun pactVerificationTestTemplate(context: PactVerificationContext) {
+        context.verifyInteraction()
+    }
+
+    @State("Valid UPC")
+    fun pactWithValidUPC () {
         val content = this.javaClass.getResourceAsStream("/sample.json").bufferedReader().use(BufferedReader::readText)
         wireMockServer.stubFor(
                 WireMock.get(WireMock.urlPathMatching("/prod/trial/lookup")
                 ).willReturn(WireMock.aResponse().withHeader("Content-Type", "application/json")
                         .withStatus(200).withBody(content)))
-
-        mockMvc.get("/products/12345/prices") {
-        }.andExpect {
-            status {isOk}
-            content {contentType(MediaType.APPLICATION_JSON)}
-        }
     }
 
-    @Test
-    fun throw400onInvalidUPC() {
-        wireMockServer.stubFor(
-                WireMock.get(WireMock.urlPathMatching("/prod/trial/lookup")
-                ).willReturn(WireMock.aResponse()
-                        .withStatus(400)))
-
-        mockMvc.get("/products/12345/prices") {
-        }.andExpect {
-            status {`is`(400)}
-        }
-    }
 }

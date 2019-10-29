@@ -21,6 +21,7 @@ dependencies {
     implementation ("com.google.code.gson:gson")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("au.com.dius:pact-jvm-provider-junit5:4.0.2")
     testImplementation("io.rest-assured:spring-mock-mvc:4.1.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -37,4 +38,9 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
     }
+}
+
+tasks.withType<Test> {
+    systemProperty("pact.verifier.providerAppVersion", version)
+    systemProperty("pact.verifier.publishResults", true)
 }
