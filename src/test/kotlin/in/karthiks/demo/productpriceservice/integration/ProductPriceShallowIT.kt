@@ -40,7 +40,6 @@ import java.math.BigDecimal
 import java.util.*
 
 @Tag("integration")
-@RunWith(SpringRunner::class)
 @WebMvcTest(ProductPriceController::class)
 class ProductPriceShallowIT {
 
