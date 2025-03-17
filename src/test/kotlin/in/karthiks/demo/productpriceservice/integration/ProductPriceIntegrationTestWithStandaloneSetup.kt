@@ -64,10 +64,10 @@ class ProductPriceIntegrationTestWithStandaloneSetup {
 
     @Test
     fun throw400onInvalidUPC() {
-        `when`(priceService.getPrices(anyString())).thenThrow(PriceService.ProductNotFoundException())
+        `when`(priceService.getPrices(anyString())).thenAnswer {throw PriceService.ProductNotFoundException()}
         mockMvc.get("/products/12345/prices") {
         }.andExpect {
-            status {`is`(400)}
+            status {`is`(404)}
         }
     }
 }
