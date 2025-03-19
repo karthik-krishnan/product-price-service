@@ -41,6 +41,6 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Test> {
-    systemProperty("pact.verifier.providerAppVersion", version)
+    systemProperty("pact.provider.version", version)
     systemProperty("pact.verifier.publishResults", true)
 }
